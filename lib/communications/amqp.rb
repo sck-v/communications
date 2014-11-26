@@ -8,13 +8,13 @@ module Communications
     include Singleton
 
     def channel
-      AMQP::Channel.new(connection)
+      @channel ||= AMQP::Channel.new(connection)
     end
 
     private
 
     def connection
-      AMQP.connect
+      @connection ||= AMQP.connect
     end
   end
 end
