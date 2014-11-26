@@ -1,22 +1,28 @@
 require 'communications/amqp'
 
+require 'amqp'
+require 'amqp/utilities/event_loop_helper'
+
 module Communications
   class Receiver
 
     class << self
       def start!
-        Communications::Configuration.queues.each do |queue_name, handler_class|
-          channel = Communications::Amqp.instance.channel
+        AMQP::Utilities::EventLoopHelper.run do
+          Communications::Configuration.queues.each do |queue_name, handler_class|
+            channel = Communications::Amqp.instance.channel
+            channel.prefetch(1)
 
-          channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe(manual_ack: true) do |delivery_info, _, payload|
-            handler = handler_class.new
+            channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe(ack: true) do |metadata, payload|
+              handler = handler_class.new
 
-            begin
-              result = handler.process(payload)
-            rescue
-              raise unless process_callback(queue_name, payload, !!result)
-            ensure
-              channel.ack(delivery_info.delivery_tag, false)
+              begin
+                result = handler.process(payload)
+              rescue
+                raise unless process_callback(queue_name, payload, !!result)
+              ensure
+                metadata.ack
+              end
             end
           end
         end

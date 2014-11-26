@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     communications (0.0.1)
-      bunny (~> 1.4.0)
+      amqp
       rails
 
 GEM
@@ -33,11 +33,13 @@ GEM
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
     amq-protocol (1.9.2)
+    amqp (1.2.1)
+      amq-protocol (>= 1.9.2)
+      eventmachine
     arel (4.0.2)
     builder (3.1.4)
-    bunny (1.4.1)
-      amq-protocol (>= 1.9.2)
     erubis (2.7.0)
+    eventmachine (1.0.3)
     hike (1.2.3)
     i18n (0.6.11)
     mail (2.6.3)
