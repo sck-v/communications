@@ -6,7 +6,7 @@ module Communications
     class << self
       def start!
         Communications::Configuration.queues.each do |queue_name, handler_class|
-          channel = Communications::Amqp.instance.create_channel
+          channel = Communications::Amqp.instance.channel
 
           queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
 

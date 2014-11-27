@@ -9,10 +9,6 @@ module Communications
       @channel ||= connection.create_channel
     end
 
-    def create_channel
-      connection.create_channel
-    end
-
     private
 
     def connection
