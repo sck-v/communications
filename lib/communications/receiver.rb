@@ -11,6 +11,7 @@ module Communications
           queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
 
           queue.subscribe(manual_ack: true) do |delivery_info, _, payload|
+            Rails.logger.info payload
             # handler = handler_class.new
 
             # begin
