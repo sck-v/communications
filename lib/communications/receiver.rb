@@ -7,11 +7,10 @@ module Communications
       def start!
         Communications::Configuration.queues.each do |queue_name, handler_class|
           channel = Communications::Amqp.instance.channel
-          exchange = channel.default_exchange
 
           queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
 
-          queue.bind(exchange).subscribe(manual_ack: true) do |delivery_info, _, payload|
+          queue.subscribe(manual_ack: true) do |delivery_info, _, payload|
             handler = handler_class.new
 
             begin
