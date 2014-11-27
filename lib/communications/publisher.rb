@@ -5,13 +5,11 @@ module Communications
 
     class << self
       def publish(event, message)
-        AMQP::Utilities::EventLoopHelper.run do
-          message = message.to_json if message.respond_to?(:to_json)
+        message = message.to_json if message.respond_to?(:to_json)
 
-          channel = Communications::Amqp.instance.channel
-          exchange = channel.default_exchange
-          exchange.publish(message, routing_key: Configuration.with_channel_prefix(event), content_type: 'application/json')
-        end
+        channel = Communications::Amqp.instance.channel
+        exchange = channel.default_exchange
+        exchange.publish(message, routing_key: Configuration.with_channel_prefix(event), content_type: 'application/json')
       end
     end
   end
