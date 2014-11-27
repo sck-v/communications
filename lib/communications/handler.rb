@@ -2,7 +2,7 @@ module Communications
   module Handler
 
     def process(payload)
-      puts "Payload received: #{payload}"
+      Rails.logger.info(payload)
 
       payload = JSON.parse(payload).with_indifferent_access
 

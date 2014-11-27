@@ -8,7 +8,7 @@ module Communications
         message = message.to_json if message.respond_to?(:to_json)
 
         channel = Communications::Amqp.instance.channel
-        exchange = channel.direct('excursiopedia', durable: true)
+        exchange = channel.default_exchange
         exchange.publish(message, routing_key: Configuration.with_channel_prefix(event), content_type: 'application/json')
       end
     end
