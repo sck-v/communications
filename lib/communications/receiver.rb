@@ -14,15 +14,15 @@ module Communications
             channel.prefetch(1)
 
             channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe(ack: true) do |metadata, payload|
-              handler = handler_class.new
+              # handler = handler_class.new
 
-              begin
-                result = handler.process(payload)
-              rescue
-                raise unless process_callback(queue_name, payload, !!result)
-              ensure
-                metadata.ack
-              end
+              # begin
+              #   result = handler.process(payload)
+              # rescue
+              #   raise unless process_callback(queue_name, payload, !!result)
+              # ensure
+              metadata.ack
+              # end
             end
           end
         end

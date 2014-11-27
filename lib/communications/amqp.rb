@@ -1,8 +1,5 @@
 require 'singleton'
 
-require 'amqp'
-require 'amqp/utilities/event_loop_helper.rb'
-
 module Communications
   class Amqp
     include Singleton
