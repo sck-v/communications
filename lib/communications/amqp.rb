@@ -6,7 +6,7 @@ module Communications
     include Singleton
 
     def channel
-      @channel ||= connection.create_channel
+      connection.create_channel
     end
 
     private

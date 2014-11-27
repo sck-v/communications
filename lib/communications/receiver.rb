@@ -8,7 +8,8 @@ module Communications
         Communications::Configuration.queues.each do |queue_name, handler_class|
           channel = Communications::Amqp.instance.channel
 
-          channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe(manual_ack: true) do |delivery_info, _, payload|
+          channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe do |delivery_info, _, payload|
+            puts payload.inspect
             # handler = handler_class.new
 
             # begin
@@ -16,7 +17,7 @@ module Communications
             # rescue
             #   raise unless process_callback(queue_name, payload, !!result)
             # ensure
-              channel.ack(delivery_info.delivery_tag, false)
+            #   channel.ack(delivery_info.delivery_tag, false)
             # end
           end
         end
