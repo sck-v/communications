@@ -7,18 +7,20 @@ module Communications
       def start!
         Communications::Configuration.queues.each do |queue_name, handler_class|
           channel = Communications::Amqp.instance.channel
+          exchange = channel.default_exchange
 
-          channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe do |delivery_info, _, payload|
-            puts payload.inspect
-            # handler = handler_class.new
+          queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
 
-            # begin
-            #   result = handler.process(payload)
-            # rescue
-            #   raise unless process_callback(queue_name, payload, !!result)
-            # ensure
-            #   channel.ack(delivery_info.delivery_tag, false)
-            # end
+          queue.bind(exchange).subscribe(manual_ack: true) do |delivery_info, _, payload|
+            handler = handler_class.new
+
+            begin
+              result = handler.process(payload)
+            rescue
+              raise unless process_callback(queue_name, payload, !!result)
+            ensure
+              channel.ack(delivery_info.delivery_tag, false)
+            end
           end
         end
       end
