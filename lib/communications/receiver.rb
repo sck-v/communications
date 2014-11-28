@@ -9,17 +9,17 @@ module Communications
           channel = Communications::Amqp.instance.channel
           channel.prefetch(1)
 
-          channel.queue(Configuration.with_channel_prefix(queue_name), durable: true).subscribe(manual_ack: true) do |delivery_info, _, payload|
-            Rails.logger.info(payload)
-            # handler = handler_class.new
-            #
-            # begin
-            #   result = handler.process(payload)
-            # rescue
-            #   raise unless process_callback(queue_name, payload, !!result)
-            # ensure
-            channel.ack(delivery_info.delivery_tag, false)
-            # end
+          queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
+          queue.subscribe(manual_ack: true) do |delivery_info, _, payload|
+            handler = handler_class.new
+
+            begin
+              result = handler.process(payload)
+            rescue
+              raise unless process_callback(queue_name, payload, !!result)
+            ensure
+              channel.ack(delivery_info.delivery_tag, false)
+            end
           end
         end
       end
