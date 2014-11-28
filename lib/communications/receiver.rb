@@ -6,17 +6,21 @@ module Communications
     class << self
       def start!
         Communications::Configuration.queues.each do |queue_name, handler_class|
+          puts "[Communications] Handling messages from #{queue_name} with #{handler_class}"
+
           channel = Communications::Amqp.instance.channel
           channel.prefetch(1)
 
           queue = channel.queue(Configuration.with_channel_prefix(queue_name), durable: true)
-          queue.subscribe(manual_ack: true) do |delivery_info, _, payload|
-            handler = handler_class.new
+          handler = handler_class.new
 
+          queue.subscribe(manual_ack: true) do |delivery_info, _, payload|
+            Communications.logger.info("[Communications][Incoming] #{payload}")
             begin
               result = handler.process(payload)
-            rescue
-              raise unless process_callback(queue_name, payload, !!result)
+            rescue => e
+              Communications.logger.info("[Communications][Failure] #{payload}. Message: #{e.message}")
+              raise unless process_failure(queue_name, payload, !!result)
             ensure
               channel.ack(delivery_info.delivery_tag, false)
             end
@@ -26,10 +30,10 @@ module Communications
 
       protected
 
-      def process_callback(queue_name, payload, result)
-        return unless Configuration.on_message_callback.respond_to?(:call)
+      def process_failure(queue_name, payload, result)
+        return unless Configuration.on_message_failure_callback.respond_to?(:call)
 
-        Configuration.on_message_callback.call(queue_name, payload, result)
+        Configuration.on_message_failure_callback.call(queue_name, payload, result)
       end
     end
   end
