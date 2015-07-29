@@ -1,15 +1,26 @@
-= Communications
+# Communications
 
 This gem provides tools for easy and painless two-sided communication between two rails applications
 
-= Usage
+# Installation
+
+Add this line to your application's Gemfile:
+
+`gem 'communications', github: 'sck-v/communications'`
+
+And then execute:
+
+`$ bundle`
+
+# Usage
 
 The usage is simple:
 
-== Receiver App
+## Receiver App
 
 1. Configure receiver
-```
+
+```ruby
 Communications.configure do
   handle :channel_name, with: SomeHandler
 
@@ -20,14 +31,16 @@ end
 ```
 
 2. Start the reciever
-```
+
+```ruby
 Communications::Receiver.start! rescue Bunny::TCPConnectionFailedForAllHosts
 ```
 
 3. Implement Handler class
-```
-require 'communications/handler'
 
+```ruby
+require 'communications/handler'
+  
 class SomeHandler
   include Communications::Handler
 
@@ -37,9 +50,10 @@ class SomeHandler
 end
 ```
 
-== Transmitter App
+## Transmitter App
 
 1. Publish message
-```
+
+```ruby
 Communications::Publisher.publish(:channel_name, message_hash)
 ```
